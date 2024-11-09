@@ -63,6 +63,9 @@ body {
     top: 20px;
     right: 20px;
     padding: 10px 20px;
+    border-style: solid;
+    border-color: #1976D2;
+    border-radius: 10px
     font-size: 1em;
     cursor: pointer;
 }
