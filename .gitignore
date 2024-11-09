@@ -1,0 +1,14 @@
+# Node modules
+node_modules/
+
+# Environment variable files
+.env
+
+# Keys or credentials
+src/keys/
+serviceAccountKey.json
+
+# Logs
+logs
+*.log
+npm-debug.log*

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Road Not Taken Typing</title>
+  <title>Typing Speed Challenge</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -43,13 +43,25 @@
       margin-top: 15px;
       font-size: 1em;
     }
+
+    select {
+      font-size: 1em;
+      margin-bottom: 20px;
+      padding: 5px;
+    }
   </style>
 </head>
 <body>
 
-<h1>Type "The Road Not Taken"</h1>
+<h1>Typing Speed Challenge</h1>
 
-<textarea id="input-text" placeholder="Start typing the poem here..."></textarea>
+<select id="question-select">
+  <option value="">Select a name</option>
+</select>
+
+<div id="question-display" style="margin-top: 10px;"></div>
+
+<textarea id="input-text" placeholder="Start typing here..."></textarea>
 
 <div id="stats">
   <p>Incorrect Typing Count: <span id="incorrect-count">0</span></p>
@@ -57,52 +69,57 @@
 </div>
 
 <script>
-  const poemText = `
-    Two roads diverged in a yellow wood,
-    And sorry I could not travel both
-    And be one traveler, long I stood
-    And looked down one as far as I could
-    To where it bent in the undergrowth;
+  const questionSelect = document.getElementById('question-select');
+  const questionDisplay = document.getElementById('question-display');
+  const inputText = document.getElementById('input-text');
+  const incorrectCountDisplay = document.getElementById('incorrect-count');
+  const tabCountDisplay = document.getElementById('tab-count');
 
-    Then took the other, as just as fair,
-    And having perhaps the better claim,
-    Because it was grassy and wanted wear;
-    Though as for that the passing there
-    Had worn them really about the same,
-
-    And both that morning equally lay
-    In leaves no step had trodden black.
-    Oh, I kept the first for another day!
-    Yet knowing how way leads on to way,
-    I doubted if I should ever come back.
-
-    I shall be telling this with a sigh
-    Somewhere ages and ages hence:
-    Two roads diverged in a wood, and I—
-    I took the one less traveled by,
-    And that has made all the difference.
-  `.trim().split(/\s+/).map(word => word.toLowerCase());
-
-  const inputText = document.getElementById("input-text");
-  const incorrectCountDisplay = document.getElementById("incorrect-count");
-  const tabCountDisplay = document.getElementById("tab-count");
-
+  let currentText = [];
   let currentIndex = 0;
   let incorrectCount = 0;
   let tabCount = 0;
 
-  inputText.addEventListener("input", () => {
+  // Fetch questions from API and populate dropdown
+  fetch('/api/questions')
+    .then(response => response.json())
+    .then(data => {
+      data.forEach(question => {
+        const option = document.createElement('option');
+        option.value = question.text;
+        option.textContent = question.name;
+        questionSelect.appendChild(option);
+      });
+    })
+    .catch(error => console.error('Error fetching questions:', error));
+
+  // Set question and text when dropdown selection changes
+  questionSelect.addEventListener('change', () => {
+    const selectedText = questionSelect.value;
+    if (selectedText) {
+      questionDisplay.textContent = questionSelect.options[questionSelect.selectedIndex].text;
+      currentText = selectedText.trim().split(/\s+/).map(word => word.toLowerCase());
+      inputText.value = '';
+      incorrectCount = 0;
+      tabCount = 0;
+      incorrectCountDisplay.textContent = incorrectCount;
+      tabCountDisplay.textContent = tabCount;
+      currentIndex = 0;
+    }
+  });
+
+  inputText.addEventListener('input', () => {
     const typedWords = inputText.value.trim().toLowerCase().split(/\s+/);
     const lastTypedWord = typedWords[typedWords.length - 1] || "";
-    const currentPoemWord = poemText[currentIndex] || "";
+    const currentTextWord = currentText[currentIndex] || "";
 
-    const isCorrect = typedWords.every((word, index) => word === poemText[index] || poemText[index].startsWith(word));
+    const isCorrect = typedWords.every((word, index) => word === currentText[index] || currentText[index].startsWith(word));
     inputText.classList.toggle("correct", isCorrect);
     inputText.classList.toggle("incorrect", !isCorrect);
 
-    if (isCorrect && lastTypedWord === currentPoemWord) {
+    if (isCorrect && lastTypedWord === currentTextWord) {
       currentIndex = typedWords.length;
-    } else if (!isCorrect && lastTypedWord !== currentPoemWord) {
+    } else if (!isCorrect && lastTypedWord !== currentTextWord) {
       incorrectCount++;
       incorrectCountDisplay.textContent = incorrectCount;
     }
@@ -113,12 +130,12 @@
       e.preventDefault();
       const typedWords = inputText.value.trim().toLowerCase().split(/\s+/);
       const lastTypedWord = typedWords[typedWords.length - 1] || "";
-      const currentPoemWord = poemText[currentIndex] || "";
+      const currentTextWord = currentText[currentIndex] || "";
 
-      if (currentPoemWord.startsWith(lastTypedWord)) {
-        typedWords[typedWords.length - 1] = currentPoemWord;
-      } else if (currentIndex < poemText.length) {
-        typedWords.push(currentPoemWord);
+      if (currentTextWord.startsWith(lastTypedWord)) {
+        typedWords[typedWords.length - 1] = currentTextWord;
+      } else if (currentIndex < currentText.length) {
+        typedWords.push(currentTextWord);
       }
 
       inputText.value = typedWords.join(" ") + " ";
