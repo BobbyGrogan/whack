@@ -1,148 +1,246 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Typing Speed Challenge</title>
-  <link rel="stylesheet" href="./index.css">
-  <style>
-    .container {
-      display: flex;
-      width: 100%;
-    }
-    .left-section {
-      width: 70%;
-      padding: 20px;
-    }
-    .right-section {
-      width: 30%;
-      padding: 20px;
-      font-family: monospace;
-    }
-    #answer-text {
-      white-space: pre-wrap;
-      font-size: 1.2em;
-      color: #555;
-    }
-  </style>
-</head>
-<body>
+<html>
+    <head>
+        <title>Learn</title>
+    </head>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Signika+Negative:wght@300..700&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap');
 
-<div class="container">
-  <!-- Left Section -->
-  <div class="left-section">
-    <h1>Typing Speed Challenge</h1>
-    <div class="controls">
-      <input type="checkbox" id="punctuation-checkbox">
-      <label for="punctuation-checkbox">Count Punctuation for Matching</label>
-    </div>
-    <textarea id="input-text" placeholder="Start typing here..."></textarea>
-    <div id="stats">
-      <p>Incorrect Typing Count: <span id="incorrect-count">0</span></p>
-      <p>Tab Usage Count: <span id="tab-count">0</span></p>
-    </div>
-  </div>
+        body {
+            font-family: "Inter";
+            background-color: #a6aab9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .placeholder-container {
+            width: 80%;
+            font-size: 2em;
+            color: #888;
+            display: flex;
+            flex-wrap: wrap;
+            line-height: 1.5;
+            text-align: center;
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
 
-  <!-- Right Section -->
-  <div class="right-section">
-    <div id="answer-text"></div>
-  </div>
-</div>
+        .letter, .space {
+            display: inline-block;
+            transition: color 0.2s, background-color 0.2s;
+            min-height: 1em;
+        }
+        
+        .space {
+            width: 0.3em;
+        }
+        
+        .correct-flash {
+            background-color: lightgreen;
+        }
 
-<script>
-  const punctuationCheckbox = document.getElementById('punctuation-checkbox');
-  const inputText = document.getElementById('input-text');
-  const incorrectCountDisplay = document.getElementById('incorrect-count');
-  const tabCountDisplay = document.getElementById('tab-count');
-  const answerText = document.getElementById('answer-text');
+        .difficulty-container {
+            position: fixed;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+        }
 
-  let correctTextArray = [];
-  let currentText = [];
-  let incorrectCount = 0;
-  let tabCount = 0;
-  const toGuess = "He drinks because she scolds, he thinks; She thinks she scolds because he drinks; And neither will admit what's true, That he's a sot and she's a shrew.";
+        .custom-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+        }
 
-  function setQuestionText(text) {
-    correctTextArray = text.split('');
-    currentText = [...correctTextArray]; // Initially display full text
-    updateAnswerText();
-    inputText.value = '';
-    incorrectCount = 0;
-    tabCount = 0;
-    incorrectCountDisplay.textContent = incorrectCount;
-    tabCountDisplay.textContent = tabCount;
-    inputText.classList.remove("correct", "incorrect");
-  }
+        .dropdown {
+            font-size: 1.2em;
+            padding: 5px 10px;
+        }
 
-  function updateAnswerText() {
-    answerText.textContent = currentText.join('');
-  }
+        .custom-input-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            z-index: 1;
+        }
 
-  setQuestionText(toGuess);
+        .custom-input {
+            width: 80%;
+            height: 50px;
+            font-size: 1.5em;
+            padding: 10px;
+            text-align: center;
+        }
 
-  function normalizeText(text) {
-    return text.replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, '').toLowerCase();
-  }
+        .submit-button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+    </style>
+    <body>
+        <div class="placeholder-container" id="placeholderContainer"></div>
 
-  function handleTyping(typedText) {
-    if (typedText === "") {
-      // Reveal the full text if input is empty
-      currentText = [...correctTextArray];
-      updateAnswerText();
-      return true;
-    }
+        <!-- Custom Button -->
+        <button class="custom-button" id="customButton">Custom</button>
 
-    currentText = correctTextArray.map((char, index) => {
-      const typedChar = typedText[index] || '';
-      const isCorrect = punctuationCheckbox.checked
-        ? char === typedChar // Case-sensitive if punctuation checkbox is checked
-        : normalizeText(char) === normalizeText(typedChar); // Case-insensitive if unchecked
-      return isCorrect ? char : (char === ' ' ? ' ' : '_');
-    });
+        <!-- Custom Text Input Overlay -->
+        <div class="custom-input-container" id="customInputContainer">
+            <input type="text" id="customInput" class="custom-input" placeholder="Enter custom text here...">
+            <button class="submit-button" id="submitCustomText">Submit</button>
+        </div>
 
-    updateAnswerText();
-    return typedText === correctTextArray.slice(0, typedText.length).join('');
-  }
+        <!-- Difficulty Dropdown Menu -->
+        <div class="difficulty-container">
+            <label for="difficulty">Difficulty: </label>
+            <select id="difficulty" class="dropdown">
+                <option value="easy" selected>Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+            </select>
+        </div>
 
-  function completeWord() {
-    const typedWords = inputText.value.trim().split(/\s+/);
-    const correctWords = toGuess.split(/\s+/);
-    const wordIndex = typedWords.length - 1;
-    const currentTypedWord = typedWords[wordIndex] || "";
-    console.log(currentTypedWord);
-    const correctWord = correctWords[wordIndex] || "";
-    console.log(correctWord);
+        <script>
+            let placeholderText = "He drinks because she scolds, he thinks; She thinks she scolds because he drinks; And neither will admit what's true, That he's a sot and she's a shrew.";
+            const placeholderContainer = document.getElementById("placeholderContainer");
+            const difficultySelect = document.getElementById("difficulty");
+            const customButton = document.getElementById("customButton");
+            const customInputContainer = document.getElementById("customInputContainer");
+            const customInput = document.getElementById("customInput");
+            const submitCustomText = document.getElementById("submitCustomText");
 
-    if (correctWord.toLowerCase().startsWith(currentTypedWord.toLowerCase())) {
-      inputText.value = typedWords.slice(0, wordIndex).concat(correctWord).join(' ') + ' ';
-    } else {
-      inputText.value = typedWords.slice(0, wordIndex).concat(correctWord).join(' ') + ' ';
-    }
+            // Function to render text based on selected difficulty
+            function renderText(difficulty) {
+                placeholderContainer.innerHTML = ''; // Clear existing content
+                
+                Array.from(placeholderText).forEach(character => {
+                    const charDiv = document.createElement('div');
 
-    handleTyping(inputText.value); // Refresh answer text with updated input
-  }
+                    if (character === ' ') {
+                        charDiv.classList.add('space');
+                        charDiv.innerText = ' '; // Ensures space character is rendered
+                    } else {
+                        charDiv.classList.add('letter');
 
-  inputText.addEventListener('input', () => {
-    const typedText = inputText.value;
-    const isCorrect = handleTyping(typedText);
+                        if (difficulty === "easy") {
+                            charDiv.innerText = character; // Show actual character
+                        } else if (difficulty === "medium") {
+                            charDiv.innerText = '_'; // Show underscores
+                        } else if (difficulty === "hard") {
+                            charDiv.innerText = ''; // Hide letters completely
+                        }
+                    }
+                    
+                    placeholderContainer.appendChild(charDiv);
+                });
+            }
 
-    inputText.classList.toggle("correct", isCorrect);
-    inputText.classList.toggle("incorrect", !isCorrect);
-  });
+            // Initialize with easy difficulty
+            renderText("easy");
 
-  inputText.addEventListener("keydown", (e) => {
-    if (e.key === "Tab") {
-      e.preventDefault();
-      tabCount++;
-      tabCountDisplay.textContent = tabCount;
-      completeWord();
-    }
-  });
+            // Update placeholder text when difficulty changes
+            difficultySelect.addEventListener("change", function() {
+                renderText(this.value);
+                currentIndex = 0; // Reset typing index on difficulty change
+            });
 
-  punctuationCheckbox.addEventListener('change', () => {
-    setQuestionText(toGuess);
-  });
-</script>
+            // Show custom input overlay when the custom button is clicked
+            customButton.addEventListener("click", function() {
+                customInputContainer.style.display = "flex";
+                customInput.value = ''; // Clear input field
+                customInput.focus(); // Focus on input field
+            });
 
-</body>
+            // Submit custom text and update the display
+            submitCustomText.addEventListener("click", function() {
+                placeholderText = customInput.value || placeholderText; // Use entered text or keep original
+                renderText(difficultySelect.value); // Render with current difficulty
+                customInputContainer.style.display = "none"; // Hide input overlay
+                currentIndex = 0; // Reset typing index
+            });
+
+            // Track the index of the next character to replace
+            let currentIndex = 0;
+            let characters;
+
+            document.addEventListener("keydown", function(event) {
+                // Prevent typing interaction with the dropdown or custom input when focused
+                if (document.activeElement === difficultySelect || document.activeElement === customInput) return;
+
+                characters = document.querySelectorAll('.letter, .space'); // Update character list
+
+                // Handle typing (forward input)
+                if (event.key.length === 1 && !event.ctrlKey && currentIndex < characters.length) {
+                    const currentChar = characters[currentIndex];
+                    
+                    if (event.key === " ") {
+                        if (currentChar.classList.contains('space')) {
+                            // Correctly typed space
+                            currentChar.style.backgroundColor = "lightgreen"; // Add green flash for space
+                            setTimeout(() => {
+                                currentChar.style.backgroundColor = "transparent";
+                            }, 200);
+                        } else if (currentChar.classList.contains('letter')) {
+                            // If space is typed where a letter is expected, show underscore
+                            currentChar.innerText = "_";
+                            currentChar.style.color = "red";
+                        }
+                    } else if (currentChar.classList.contains('letter')) {
+                        // Compare the typed character with the placeholder character, ignoring case
+                        if (event.key.toLowerCase() === placeholderText[currentIndex].toLowerCase()) {
+                            currentChar.style.color = "black"; // Correct letter
+                            currentChar.style.backgroundColor = "lightgreen"; // Add green flash
+
+                            // Remove the flash effect after a delay
+                            setTimeout(() => {
+                                currentChar.style.backgroundColor = "transparent";
+                            }, 200);
+                        } else {
+                            currentChar.style.color = "red"; // Incorrect letter
+                        }
+                        currentChar.innerText = event.key;
+                    }
+                    currentIndex++; // Move to the next character
+                }
+
+                // Handle deleting (backward input)
+                else if (event.key === "Backspace" && currentIndex > 0) {
+                    currentIndex--; // Move back to the previous character
+                    const currentChar = characters[currentIndex];
+                    
+                    // Check if current character is a space or letter before resetting
+                    if (currentChar.classList.contains('space')) {
+                        currentChar.style.backgroundColor = "transparent"; // Reset background for spaces
+                    } else if (currentChar.classList.contains('letter')) {
+                        currentChar.innerText = placeholderText[currentIndex];
+                        currentChar.style.color = "#888"; // Reset color to placeholder color
+                        currentChar.style.backgroundColor = "transparent"; // Reset background color
+
+                        // Re-render based on difficulty if medium or hard
+                        if (difficultySelect.value === "medium") {
+                            currentChar.innerText = "_";
+                        } else if (difficultySelect.value === "hard") {
+                            currentChar.innerText = '';
+                        }
+                    }
+                }
+            });
+        </script>
+    </body>
 </html>
