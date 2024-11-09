@@ -13,13 +13,12 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-// Serve static files from the "public" directory
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(__dirname, '../public/build')));
 
-// Route to serve index.html
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public', 'index.html'));
+    res.sendFile(path.join(__dirname, '../public/build', 'index.html'));
 });
+
 
 // API route to fetch "name" and "question" fields from Firestore
 app.get('/api/questions', async (req, res) => {
