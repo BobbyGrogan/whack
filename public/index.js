@@ -1,4 +1,14 @@
-let placeholderText = "He drinks because she scolds, he thinks; She thinks she scolds because he drinks; And neither will admit what's true, That he's a sot and she's a shrew.";
+// Define texts for the title dropdown
+const texts = {
+    "Ogden Nash Quote": "He drinks because she scolds, he thinks; She thinks she scolds because he drinks; And neither will admit what's true, That he's a sot and she's a shrew.",
+    "The Road Not Taken": "Two roads diverged in a yellow wood, And sorry I could not travel both",
+    "Still I Rise": "You may write me down in history With your bitter, twisted lies",
+    "Hope is the Thing with Feathers": "Hope is the thing with feathers That perches in the soul",
+    "Invictus": "Out of the night that covers me, Black as the pit from pole to pole",
+};
+
+// Initialize placeholder text with the default selection
+let placeholderText = texts["Ogden Nash Quote"];
 const placeholderContainer = document.getElementById("placeholderContainer");
 const difficultySelect = document.getElementById("difficulty");
 const customButton = document.getElementById("customButton");
@@ -6,13 +16,24 @@ const customInputContainer = document.getElementById("customInputContainer");
 const customInput = document.getElementById("customInput");
 const revealButton = document.getElementById("revealButton");
 const submitCustomText = document.getElementById("submitCustomText");
+const titleDropdown = document.getElementById("title");
 
 let startTime = null;
 let correctCount = 0;
 let totalCount = 0;
+let hintCount = 0; // Track the number of times Tab is pressed
 let characters;
 let currentIndex = 0;
-let pulseTimeout; // Timeout for controlling pulse
+let pulseTimeout;
+let tabEnabled = true; // Flag to control Tab functionality
+
+// Populate title dropdown with text options
+Object.keys(texts).forEach((title) => {
+    const option = document.createElement("option");
+    option.value = title;
+    option.textContent = title;
+    titleDropdown.appendChild(option);
+});
 
 // Function to render text based on selected difficulty
 function renderText(difficulty) {
@@ -49,19 +70,19 @@ function renderText(difficulty) {
 // Initialize with easy difficulty
 renderText("easy");
 
-// Reveal word when the reveal button is clicked
-revealButton.addEventListener("click", function() {
-    
+// Update placeholder text when title dropdown changes
+titleDropdown.addEventListener("change", function() {
+    placeholderText = texts[this.value];
+    renderText(difficultySelect.value); // Render with the current difficulty level
+    resetTyping();
+    this.blur(); // Remove focus from title dropdown
 });
 
 // Update placeholder text when difficulty changes
 difficultySelect.addEventListener("change", function() {
     renderText(this.value);
-    currentIndex = 0; // Reset typing index on difficulty change
-    startTime = null; // Reset start time
-    correctCount = 0; // Reset correct count
-    totalCount = 0;   // Reset total typed count
-    applyPulseToCurrentChar(); // Restart pulse for the new difficulty level
+    resetTyping();
+    this.blur(); // Remove focus from difficulty dropdown
 });
 
 // Show custom input overlay when the custom button is clicked
@@ -76,11 +97,7 @@ submitCustomText.addEventListener("click", function() {
     placeholderText = customInput.value || placeholderText; // Use entered text or keep original
     renderText(difficultySelect.value); // Render with current difficulty
     customInputContainer.style.display = "none"; // Hide input overlay
-    currentIndex = 0; // Reset typing index
-    startTime = null; // Reset start time
-    correctCount = 0; // Reset correct count
-    totalCount = 0;   // Reset total typed count
-    applyPulseToCurrentChar(); // Restart pulse
+    resetTyping();
 });
 
 // Apply pulsing effect to the current character if no typing occurs within 0.5 seconds
@@ -95,9 +112,10 @@ function applyPulseToCurrentChar() {
     }, 500); // Wait 0.5 seconds to apply pulse
 }
 
+// Handle keydown event
 document.addEventListener("keydown", function(event) {
     // Prevent typing interaction with the dropdown or custom input when focused
-    if (document.activeElement === difficultySelect || document.activeElement === customInput) return;
+    if (document.activeElement === difficultySelect || document.activeElement === customInput || document.activeElement === titleDropdown) return;
 
     // Clear the pulse effect immediately on typing
     characters.forEach(char => char.classList.remove('pulse'));
@@ -109,8 +127,9 @@ document.addEventListener("keydown", function(event) {
     }
 
     // Handle Tab key for autocomplete
-    if (event.key === "Tab") {
+    if (event.key === "Tab" && tabEnabled) {
         event.preventDefault(); // Prevent default tab behavior
+        hintCount++; // Increment hint count on each Tab press
 
         // Find the next word from the current index
         let endIndex = currentIndex;
@@ -130,6 +149,11 @@ document.addEventListener("keydown", function(event) {
         // Move currentIndex to the end of the autocompleted word
         currentIndex = endIndex + 1;
         applyPulseToCurrentChar(); // Update pulse timer
+
+        // Check if all characters have been typed
+        if (currentIndex >= characters.length) {
+            calculateStats(); // Calculate and display stats
+        }
         return;
     }
 
@@ -200,6 +224,9 @@ function calculateStats() {
     const accuracy = (correctCount / totalCount) * 100;
     const lettersPerSecond = correctCount / timeTaken;
 
+    // Disable Tab autocomplete when stats are displayed
+    tabEnabled = false;
+
     // Dynamically create review box elements
     const reviewBox = document.createElement('div');
     reviewBox.classList.add('review-box');
@@ -222,7 +249,8 @@ function calculateStats() {
     const statsMessage = `
         Time Taken (seconds): ${timeTaken.toFixed(2)}<br>
         Letters Per Second: ${lettersPerSecond.toFixed(2)}<br>
-        Accuracy (%): ${accuracy.toFixed(2)}
+        Accuracy (%): ${accuracy.toFixed(2)}<br>
+        Hints Used (Tabs): ${hintCount}
     `;
     
     const statsText = document.createElement('p');
@@ -237,40 +265,48 @@ function calculateStats() {
     closeButton.style.fontSize = '1em';
     closeButton.style.cursor = 'pointer';
 
-    const increaseDifficultyButton = document.createElement('button');
-    increaseDifficultyButton.innerText = 'Increase Difficulty';
-    increaseDifficultyButton.style.margin = '5px';
-    increaseDifficultyButton.style.padding = '10px 20px';
-    increaseDifficultyButton.style.fontSize = '1em';
-    increaseDifficultyButton.style.cursor = 'pointer';
-
-    // Append elements to review box
     reviewContent.appendChild(statsText);
     reviewContent.appendChild(closeButton);
-    reviewContent.appendChild(increaseDifficultyButton);
+
+    // Only add the "Increase Difficulty" button if the difficulty is not set to hard
+    if (difficultySelect.value !== "hard") {
+        const increaseDifficultyButton = document.createElement('button');
+        increaseDifficultyButton.innerText = 'Increase Difficulty';
+        increaseDifficultyButton.style.margin = '5px';
+        increaseDifficultyButton.style.padding = '10px 20px';
+        increaseDifficultyButton.style.fontSize = '1em';
+        increaseDifficultyButton.style.cursor = 'pointer';
+        reviewContent.appendChild(increaseDifficultyButton);
+
+        increaseDifficultyButton.addEventListener("click", function() {
+            if (difficultySelect.value === "easy") {
+                difficultySelect.value = "medium";
+            } else if (difficultySelect.value === "medium") {
+                difficultySelect.value = "hard";
+            }
+            renderText(difficultySelect.value);
+            resetTyping(); // Reset typed text on difficulty change
+            document.body.removeChild(reviewBox); // Remove review box from DOM
+            tabEnabled = true; // Re-enable Tab autocomplete
+        });
+    }
+
     reviewBox.appendChild(reviewContent);
     document.body.appendChild(reviewBox);
 
-    // Event listeners for the review box buttons
     closeButton.addEventListener("click", function() {
         document.body.removeChild(reviewBox); // Remove review box from DOM
+        tabEnabled = true; // Re-enable Tab autocomplete when stats box is closed
+        resetTyping(); // Reset typed text on close
     });
+}
 
-    increaseDifficultyButton.addEventListener("click", function() {
-        // Increase the difficulty level
-        if (difficultySelect.value === "easy") {
-            difficultySelect.value = "medium";
-        } else if (difficultySelect.value === "medium") {
-            difficultySelect.value = "hard";
-        } else if (difficultySelect.value === "hard") {
-            alert("You are already at the hardest difficulty!");
-        }
-        // Update the text with new difficulty
-        renderText(difficultySelect.value);
-        currentIndex = 0;
-        startTime = null;
-        correctCount = 0;
-        totalCount = 0;
-        document.body.removeChild(reviewBox); // Remove review box from DOM
-    });
+// Reset all typing data
+function resetTyping() {
+    currentIndex = 0;
+    startTime = null;
+    correctCount = 0;
+    totalCount = 0;
+    hintCount = 0;
+    renderText(difficultySelect.value); // Re-render the text with the current difficulty
 }
