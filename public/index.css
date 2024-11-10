@@ -143,3 +143,18 @@ body {
     text-decoration: none;
   }
   
+@keyframes pulse {
+    0% {
+        background-color: transparent;
+    }
+    50% {
+        background-color: lightgrey;
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+.pulse {
+    animation: pulse 1s infinite;
+}
