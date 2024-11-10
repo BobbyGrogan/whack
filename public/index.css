@@ -67,7 +67,21 @@ body {
     border-style: solid;
     border-color: #1976D2;
     border-radius: 10px;
-    font-size: 1em;
+    font-size: 1.1em;
+    color: #1976D2;
+    cursor: pointer;
+}
+
+.reveal-button {
+    position: fixed;
+    top: 72px;
+    right: 70;
+    padding: 10px 20px;
+    background-color: #FFFFFF;
+    border-style: solid;
+    border-color: #1976D2;
+    border-radius: 10px;
+    font-size: 1.1em;
     color: #1976D2;
     cursor: pointer;
 }
@@ -178,5 +192,14 @@ body {
     background-color: #FFFFFF;
     border: 2px solid #1976D2;
     color: #1976D2;
+    border-radius: 10px;
+}
+
+.titledropdown {
+    font-size: 1em;
+    padding: 5px 10px;
+    border-style: solid;
+    border-color: #1976D2;
+    color:#1976D2;
     border-radius: 10px;
 }
