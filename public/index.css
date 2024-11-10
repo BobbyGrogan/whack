@@ -121,3 +121,18 @@ body {
     font-size: 1em;
     cursor: pointer;
 }
+
+.topnav {
+    overflow: hidden;
+    background-color: linear-gradient(to right, #1976D2 , #5B21B6);
+  }
+  
+  .topnav a {
+    float: left;
+    display: block;
+    color: #FFFFFF;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+  }
+  
