@@ -19,10 +19,8 @@ body {
     display: flex;
     flex-wrap: wrap;
     line-height: 1.5;
-    text-align: center;
-    position: relative;
-    word-break: break-word;
-    white-space: pre-wrap;
+    text-align: left;
+    white-space: pre-wrap; /* Preserves spaces, tabs, and line breaks */
 }
 
 .letter, .space {

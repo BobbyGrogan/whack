@@ -9,18 +9,23 @@ const submitCustomText = document.getElementById("submitCustomText");
 let startTime = null;
 let correctCount = 0;
 let totalCount = 0;
-let characters; // Initialize characters here
-let currentIndex = 0; // Initialize currentIndex here
+let characters;
+let currentIndex = 0;
+let pulseTimeout; // Timeout for controlling pulse
 
 // Function to render text based on selected difficulty
 function renderText(difficulty) {
     placeholderContainer.innerHTML = ''; // Clear existing content
-    Array.from(placeholderText).forEach(character => {
+
+    placeholderText.split('').forEach(character => {
         const charDiv = document.createElement('div');
 
         if (character === ' ') {
             charDiv.classList.add('space');
             charDiv.innerText = ' ';
+        } else if (character === '\t') {
+            charDiv.classList.add('tab');
+            charDiv.innerText = '\t'; // Preserves tabs as well
         } else {
             charDiv.classList.add('letter');
 
@@ -29,14 +34,15 @@ function renderText(difficulty) {
             } else if (difficulty === "medium") {
                 charDiv.innerText = '_';
             } else if (difficulty === "hard") {
-                charDiv.innerText = '';
+                charDiv.innerText = ''; // Leave character blank in hard mode
             }
         }
-        
+
         placeholderContainer.appendChild(charDiv);
     });
-    characters = document.querySelectorAll('.letter, .space'); // Initialize characters here after rendering
-    applyPulseToCurrentChar(); // Start pulsing the first character
+
+    characters = document.querySelectorAll('.letter, .space, .tab'); // Initialize characters with tabs as well
+    applyPulseToCurrentChar(); // Start pulsing the first character if inactive
 }
 
 // Initialize with easy difficulty
@@ -49,6 +55,7 @@ difficultySelect.addEventListener("change", function() {
     startTime = null; // Reset start time
     correctCount = 0; // Reset correct count
     totalCount = 0;   // Reset total typed count
+    applyPulseToCurrentChar(); // Restart pulse for the new difficulty level
 });
 
 // Show custom input overlay when the custom button is clicked
@@ -67,23 +74,57 @@ submitCustomText.addEventListener("click", function() {
     startTime = null; // Reset start time
     correctCount = 0; // Reset correct count
     totalCount = 0;   // Reset total typed count
+    applyPulseToCurrentChar(); // Restart pulse
 });
 
-// Apply pulsing effect to the current character
+// Apply pulsing effect to the current character if no typing occurs within 0.5 seconds
 function applyPulseToCurrentChar() {
-    characters.forEach((char, index) => char.classList.remove('pulse')); // Remove pulse from all characters
-    if (currentIndex < characters.length) {
-        characters[currentIndex].classList.add('pulse'); // Add pulse to current character
-    }
+    clearTimeout(pulseTimeout); // Clear any existing pulse timeout
+
+    pulseTimeout = setTimeout(() => {
+        characters.forEach((char) => char.classList.remove('pulse')); // Remove pulse from all characters
+        if (currentIndex < characters.length) {
+            characters[currentIndex].classList.add('pulse'); // Add pulse to current character
+        }
+    }, 500); // Wait 0.5 seconds to apply pulse
 }
 
 document.addEventListener("keydown", function(event) {
     // Prevent typing interaction with the dropdown or custom input when focused
     if (document.activeElement === difficultySelect || document.activeElement === customInput) return;
 
+    // Clear the pulse effect immediately on typing
+    characters.forEach(char => char.classList.remove('pulse'));
+    clearTimeout(pulseTimeout); // Stop pulsing immediately on typing
+
     // Start the timer on the first keystroke
     if (startTime === null) {
         startTime = new Date();
+    }
+
+    // Handle Tab key for autocomplete
+    if (event.key === "Tab") {
+        event.preventDefault(); // Prevent default tab behavior
+
+        // Find the next word from the current index
+        let endIndex = currentIndex;
+        while (endIndex < placeholderText.length && placeholderText[endIndex] !== ' ') {
+            endIndex++;
+        }
+
+        // Autocomplete the characters in the current word
+        for (let i = currentIndex; i < endIndex; i++) {
+            if (i >= characters.length) break;
+            const currentChar = characters[i];
+            currentChar.innerText = placeholderText[i];
+            currentChar.style.color = "black"; // Mark as correctly filled
+            correctCount++; // Increment correct count for each auto-filled character
+        }
+
+        // Move currentIndex to the end of the autocompleted word
+        currentIndex = endIndex + 1;
+        applyPulseToCurrentChar(); // Update pulse timer
+        return;
     }
 
     // Handle typing (forward input)
@@ -116,7 +157,7 @@ document.addEventListener("keydown", function(event) {
             currentChar.innerText = event.key;
         }
         currentIndex++; // Move to the next character
-        applyPulseToCurrentChar(); // Update pulse to new current character
+        applyPulseToCurrentChar(); // Reset pulse timer
 
         // Check if all characters have been typed
         if (currentIndex >= characters.length) {
@@ -139,10 +180,10 @@ document.addEventListener("keydown", function(event) {
             if (difficultySelect.value === "medium") {
                 currentChar.innerText = "_";
             } else if (difficultySelect.value === "hard") {
-                currentChar.innerText = '';
+                currentChar.innerText = ''; // Ensure it stays blank in hard mode
             }
         }
-        applyPulseToCurrentChar(); // Update pulse to new current character
+        applyPulseToCurrentChar(); // Reset pulse timer
     }
 });
 
@@ -156,9 +197,21 @@ function calculateStats() {
     // Dynamically create review box elements
     const reviewBox = document.createElement('div');
     reviewBox.classList.add('review-box');
-
+    reviewBox.style.position = 'fixed';
+    reviewBox.style.top = '0';
+    reviewBox.style.left = '0';
+    reviewBox.style.width = '100%';
+    reviewBox.style.height = '100%';
+    reviewBox.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    reviewBox.style.display = 'flex';
+    reviewBox.style.alignItems = 'center';
+    reviewBox.style.justifyContent = 'center';
+    reviewBox.style.zIndex = '10';
 
     const reviewContent = document.createElement('div');
+    reviewContent.style.backgroundColor = 'white';
+    reviewContent.style.padding = '20px';
+    reviewContent.style.textAlign = 'center';
 
     const statsMessage = `
         Time Taken (seconds): ${timeTaken.toFixed(2)}<br>
@@ -167,13 +220,23 @@ function calculateStats() {
     `;
     
     const statsText = document.createElement('p');
-    statsText.classList.add('stats-text');
+    statsText.innerHTML = statsMessage;
+    statsText.style.marginBottom = '20px';
+    statsText.style.fontSize = '1.2em';
 
     const closeButton = document.createElement('button');
-    closeButton.classList.add('stats-close');
+    closeButton.innerText = 'Close';
+    closeButton.style.margin = '5px';
+    closeButton.style.padding = '10px 20px';
+    closeButton.style.fontSize = '1em';
+    closeButton.style.cursor = 'pointer';
 
     const increaseDifficultyButton = document.createElement('button');
-    increaseDifficultyButton.classList.add('stats-difficulty-button');
+    increaseDifficultyButton.innerText = 'Increase Difficulty';
+    increaseDifficultyButton.style.margin = '5px';
+    increaseDifficultyButton.style.padding = '10px 20px';
+    increaseDifficultyButton.style.fontSize = '1em';
+    increaseDifficultyButton.style.cursor = 'pointer';
 
     // Append elements to review box
     reviewContent.appendChild(statsText);
