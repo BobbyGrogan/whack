@@ -63,7 +63,7 @@ body {
 .custom-button {
     position: fixed;
     top: 72px;
-    right: 50px;
+    right: 80px;
     padding: 10px 20px;
     background-color: #FFFFFF;
     border-style: solid;
@@ -77,7 +77,7 @@ body {
 .reveal-button {
     position: fixed;
     top: 72px;
-    right: 170px;
+    right: 200px;
     padding: 10px 20px;
     background-color: #FFFFFF;
     border-style: solid;
@@ -141,6 +141,7 @@ body {
     width: 100%;
     height: 44px;
     background-image: linear-gradient(to right, #1976D2 , #5B21B6);
+    box-shadow: 0px 1px 10px #D6D7D7;
   }
   
   .topnav a {
@@ -199,3 +200,23 @@ body {
     font-weight: bold;
     color:#5B21B6;
 }
+
+#progressbar {
+    background-color: white;
+    height: 12px;
+    width: 89%;
+    border-radius: 10px;
+    border: 1px solid #1976D2;
+    position:absolute;
+    box-shadow: 0px 2px 5px #D6D7D7;
+    top:150px;
+    left:80px;
+  }
+  
+  #progressbar>div {
+    background-color: #1976D2;
+    width: 40%;
+    /* need to adjust with js */
+    height: 12px;
+    border-radius: 10px;
+  }
