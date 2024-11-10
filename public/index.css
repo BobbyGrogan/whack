@@ -167,3 +167,18 @@ body {
 .pulse {
     animation: pulse 1s infinite;
 }
+
+.review-box {
+
+    width: 400px;
+    height: 200px;
+    font-size: 1em;
+    padding: 14px;
+    text-align: left;
+    position: fixed;
+    top: 25%;
+    background-color: #FFFFFF;
+    border: 2px solid #1976D2;
+    color: #1976D2;
+    border-radius: 10px;
+}
