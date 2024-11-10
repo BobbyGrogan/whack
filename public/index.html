@@ -11,7 +11,7 @@
     <div class="placeholder-container" id="placeholderContainer"></div>
 
     <!-- Reveal Button -->
-    <button class="reveal-button" id="">Reveal Word (TAB)</button>
+    <button class="reveal-button" id="revealButton">Reveal Word (TAB)</button>
 
     <!-- Custom Button -->
     <button class="custom-button" id="customButton">Custom</button>
@@ -20,7 +20,6 @@
     <div class="custom-input-container" id="customInputContainer">
         <input type="text" id="customInput" class="custom-input" placeholder="Enter custom text here...">
         <button class="submit-button" id="submitCustomText">Submit</button>
-        <button class="return-button" id="returnToHome">Return to Home</button>
     </div>
 
     <!-- Difficulty Dropdown Menu -->
@@ -34,5 +33,14 @@
     </div>
 
     <script src="index.js"></script>
+
+    <!-- Title Dropdown Menu -->
+    <div class="title-dropdown">
+        <label for="title"> </label>
+        <select id="title" class="titledropdown">
+            <option value="test title" selected>Ogden Nash Quote</option>
+            <option value="test title 2">Test Title 2</option>
+        </select>
+    </div>
 </body>
 </html>
