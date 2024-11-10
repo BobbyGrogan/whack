@@ -4,6 +4,7 @@ const difficultySelect = document.getElementById("difficulty");
 const customButton = document.getElementById("customButton");
 const customInputContainer = document.getElementById("customInputContainer");
 const customInput = document.getElementById("customInput");
+const revealButton = document.getElementById("revealButton");
 const submitCustomText = document.getElementById("submitCustomText");
 
 let startTime = null;
@@ -47,6 +48,11 @@ function renderText(difficulty) {
 
 // Initialize with easy difficulty
 renderText("easy");
+
+// Reveal word when the reveal button is clicked
+revealButton.addEventListener("click", function() {
+    
+});
 
 // Update placeholder text when difficulty changes
 difficultySelect.addEventListener("change", function() {
