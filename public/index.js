@@ -156,21 +156,9 @@ function calculateStats() {
     // Dynamically create review box elements
     const reviewBox = document.createElement('div');
     reviewBox.classList.add('review-box');
-    reviewBox.style.position = 'fixed';
-    reviewBox.style.top = '0';
-    reviewBox.style.left = '0';
-    reviewBox.style.width = '100%';
-    reviewBox.style.height = '100%';
-    reviewBox.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-    reviewBox.style.display = 'flex';
-    reviewBox.style.alignItems = 'center';
-    reviewBox.style.justifyContent = 'center';
-    reviewBox.style.zIndex = '10';
+
 
     const reviewContent = document.createElement('div');
-    reviewContent.style.backgroundColor = 'white';
-    reviewContent.style.padding = '20px';
-    reviewContent.style.textAlign = 'center';
 
     const statsMessage = `
         Time Taken (seconds): ${timeTaken.toFixed(2)}<br>
@@ -179,23 +167,10 @@ function calculateStats() {
     `;
     
     const statsText = document.createElement('p');
-    statsText.innerHTML = statsMessage;
-    statsText.style.marginBottom = '20px';
-    statsText.style.fontSize = '1.2em';
 
     const closeButton = document.createElement('button');
-    closeButton.innerText = 'Close';
-    closeButton.style.margin = '5px';
-    closeButton.style.padding = '10px 20px';
-    closeButton.style.fontSize = '1em';
-    closeButton.style.cursor = 'pointer';
 
     const increaseDifficultyButton = document.createElement('button');
-    increaseDifficultyButton.innerText = 'Increase Difficulty';
-    increaseDifficultyButton.style.margin = '5px';
-    increaseDifficultyButton.style.padding = '10px 20px';
-    increaseDifficultyButton.style.fontSize = '1em';
-    increaseDifficultyButton.style.cursor = 'pointer';
 
     // Append elements to review box
     reviewContent.appendChild(statsText);
