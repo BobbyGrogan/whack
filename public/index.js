@@ -167,10 +167,13 @@ function calculateStats() {
     `;
     
     const statsText = document.createElement('p');
+    statsText.classList.add('stats-text');
 
     const closeButton = document.createElement('button');
+    closeButton.classList.add('stats-close');
 
     const increaseDifficultyButton = document.createElement('button');
+    increaseDifficultyButton.classList.add('stats-difficulty-button');
 
     // Append elements to review box
     reviewContent.appendChild(statsText);
