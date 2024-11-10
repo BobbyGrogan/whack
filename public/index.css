@@ -55,6 +55,8 @@ body {
     position: fixed;
     bottom: 20px;
     width: 100%;
+    font-size: 1.2em;
+    color: #1976D2;
     text-align: center;
 }
 
@@ -68,12 +70,17 @@ body {
     border-color: #1976D2;
     border-radius: 10px;
     font-size: 1em;
+    color: #1976D2;
     cursor: pointer;
 }
 
 .dropdown {
-    font-size: 1.2em;
+    font-size: 1em;
     padding: 5px 10px;
+    border-style: solid;
+    border-color: #1976D2;
+    color:#1976D2;
+    border-radius: 10px;
 }
 
 .custom-input-container {
@@ -106,6 +113,7 @@ body {
     background-color: #FFFFFF;
     border-style: solid;
     border-color: #1976D2;
+    color: #1976D2;
     border-radius: 10px;
     font-size: 1em;
     cursor: pointer;
@@ -117,6 +125,7 @@ body {
     background-color: #FFFFFF;
     border-style: solid;
     border-color: #1976D2;
+    color: #1976D2;
     border-radius: 10px;
     font-size: 1em;
     cursor: pointer;
